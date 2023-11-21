@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+
+   </style>
+  <title>AES Encryption and Decryption</title>
+
+</head>
+<body background="aesnew.jpg" text="white">
+<center>
+  <h1>AES Encryption and Decryption</h1>
+
+  <label for="inputText">Enter plain text:</label>
+  <input type="text" id="inputText" placeholder="Enter your text">
+  <button onclick="encrypt()">Encrypt</button>
+
+  <div id="output"></div>
+</center>
+<script>
+async function encrypt() {
+    const inputText = document.getElementById('inputText').value;
+
+    try {
+        const response = await fetch('/encrypt', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify(inputText),
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const encryptedText = await response.text();
+        document.getElementById('output').innerText = `Encrypted: ${encryptedText}`;
+
+        // Decrypt the message immediately after encrypting
+        decrypt(encryptedText);
+    } catch (error) {
+        console.error('Error during encryption:', error);
+        document.getElementById('output').innerText = `Error during encryption: ${error.message}`;
+    }
+}
+
+async function decrypt(encryptedText) {
+    // Remove unnecessary characters from the encrypted text
+    encryptedText = encryptedText.replace(/[^a-zA-Z0-9+/=]/g, '');
+
+    try {
+        const response = await fetch('/decrypt', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify(encryptedText),
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const decryptedText = await response.text();
+        document.getElementById('output').innerText += `\nDecrypted: ${decryptedText}`;
+    } catch (error) {
+        console.error('Error during decryption:', error);
+        document.getElementById('output').innerText += `\nError during decryption: ${error.message}`;
+    }
+}
+</script>
+
+</body>
+</html>
